@@ -6,6 +6,7 @@
     "start": "node ./server.js"
   },
   "dependencies": {
+    "bootstrap": "^3.4.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
@@ -13,5 +14,20 @@
     "http-errors": "~1.6.3",
     "mongoose": "^5.10.14",
     "morgan": "~1.9.1"
+  },
+  "main": "server.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kjumar/COMP229_Quarantine_Coders.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kjumar/COMP229_Quarantine_Coders/issues"
+  },
+  "homepage": "https://github.com/Kjumar/COMP229_Quarantine_Coders#readme",
+  "description": ""
   }
-}
+
+
