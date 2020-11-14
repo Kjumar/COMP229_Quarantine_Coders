@@ -6,6 +6,7 @@
     "start": "node ./server.js"
   },
   "dependencies": {
+    "all": "0.0.0",
     "bootstrap": "^3.4.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
@@ -28,6 +29,4 @@
   },
   "homepage": "https://github.com/Kjumar/COMP229_Quarantine_Coders#readme",
   "description": ""
-  }
-
-
+}
