@@ -5,7 +5,21 @@ let mongoose = require('mongoose');
 let surveys = require('../models/survey');
 
 module.exports.displayHomePage = (req, res, next) => {
-    res.render('index', {title: 'Home', displayName: req.user ? req.user.displayName : ''});
+    // we should cull the number of surveys that show up on this page, but for now I'm listing all of them
+    surveys.find((err, surveys) => {
+        if (err)
+        {
+            return console.error(err);
+        }
+        else
+        {
+            res.render('index', {
+                title: 'Home',
+                displayName: req.user ? req.user.displayName : '',
+                surveys: surveys
+            });
+        }
+    });
 }
 
 module.exports.displayAboutPage = (req, res, next) => {
