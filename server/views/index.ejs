@@ -43,6 +43,7 @@
                         <th class="text-center">Expires</th>
                         <th class="text-center"></th>
                         <th class="text-center"></th>
+                        <th class="text-center"></th>
                       </tr>
                       </thead>
                       <tbody>
@@ -54,11 +55,16 @@
                         <td class="text-center"><%= surveys[count].expires %></td>
       
                         <td class="text-center">
-                          <!-- ------------------------ -->
-                          <!-- ADD the EDIT BUTTON HERE -->
-                          <!-- ------------------------ -->
+                          <a href="/surveys/respond/<%= surveys[count]._id %>" class="btn btn-primary">
+                            <i class="fas fa-pencil-alt"></i> Respond </a>
                         </td>
       
+                        <td class="text-center">
+                          <!-- -------------------------------- -->
+                          <!-- ADD the VIEW RESULTS BUTTON HERE -->
+                          <!-- -------------------------------- -->
+                        </td>
+
                         <td class="text-center">
                           <!-- -------------------------- -->
                           <!-- ADD the DELETE BUTTON HERE -->

@@ -15,8 +15,14 @@ router.get('/about', indexController.displayAboutPage);
 /* GET CONTACT US page. */
 router.get('/contact', indexController.displayContactPage);
 
+// short answer survey creation
 router.get('/surveys/create', indexController.displaySurveyCreatePage);
 
 router.post('/surveys/create', indexController.processCreateShortAnswerSurvey);
+
+// short answer survey response
+router.get('/surveys/respond/:id', indexController.displaySurveyRespondPage);
+
+router.post('/surveys/respond/:id', indexController.processSurveyRespondPage);
 
 module.exports = router;

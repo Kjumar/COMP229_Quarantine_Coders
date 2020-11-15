@@ -3,6 +3,7 @@ let router = express.Router();
 let mongoose = require('mongoose');
 
 let surveys = require('../models/survey');
+let shortAnswers = require('../models/shortAnswer');
 
 module.exports.displayHomePage = (req, res, next) => {
     // we should cull the number of surveys that show up on this page, but for now I'm listing all of them
@@ -48,7 +49,7 @@ module.exports.processCreateShortAnswerSurvey = (req, res, next) => {
         'expires': req.body.expiryDate
     });
 
-    surveys.create(newSurvey, (err, book) => {
+    surveys.create(newSurvey, (err, survey) => {
         if (err)
         {
             console.log(err);
@@ -59,4 +60,45 @@ module.exports.processCreateShortAnswerSurvey = (req, res, next) => {
             res.redirect('/')
         }
     });
+}
+
+// GET survey response page and respond to a survey
+module.exports.displaySurveyRespondPage = (req, res, next) => {
+    let id = req.params.id;
+
+    surveys.findById(id, (err, survey) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            res.render('surveys/respond', {
+                title: 'Respond to Survey',
+                displayName: req.user ? req.user.displayName : '',
+                survey: survey
+            });
+        }
+    });
+}
+
+module.exports.processSurveyRespondPage = (req, res, next) => {
+    let id = req.params.id;
+
+    let newResponse = shortAnswers({
+        'surveyID': id,
+        'response': req.body.response
+    });
+
+    shortAnswers.create(newResponse, (err, shortAnswer) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            res.redirect('/'); // should redirect to a page that confirms to the use that their response has been recorded
+        }
+    })
 }
