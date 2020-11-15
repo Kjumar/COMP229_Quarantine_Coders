@@ -102,3 +102,32 @@ module.exports.processSurveyRespondPage = (req, res, next) => {
         }
     })
 }
+
+module.exports.displaySurveyDataPage = (req, res, next) => {
+    let id = req.params.id;
+
+    surveys.findById(id, (err, survey) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            shortAnswers.find({surveyID: id}, (err, shortAnswer) => {
+                if (err)
+                {
+                    return console.log(err);
+                }
+                else
+                {
+                    res.render('surveys/view', {
+                        title: 'Respond to Survey',
+                        displayName: req.user ? req.user.displayName : '',
+                        survey: survey,
+                        responses: shortAnswer
+                    });
+                }
+            });
+        }
+    });
+}

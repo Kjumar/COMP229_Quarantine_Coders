@@ -25,4 +25,7 @@ router.get('/surveys/respond/:id', indexController.displaySurveyRespondPage);
 
 router.post('/surveys/respond/:id', indexController.processSurveyRespondPage);
 
+// view survey responses
+router.get('/surveys/:id', indexController.displaySurveyDataPage);
+
 module.exports = router;
