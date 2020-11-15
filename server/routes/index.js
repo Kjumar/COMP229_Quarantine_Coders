@@ -28,4 +28,7 @@ router.post('/surveys/respond/:id', indexController.processSurveyRespondPage);
 // view survey responses
 router.get('/surveys/:id', indexController.displaySurveyDataPage);
 
+// POST delete survey (and all its answers)
+router.get('/surveys/delete/:id', indexController.processDeleteSurvey);
+
 module.exports = router;

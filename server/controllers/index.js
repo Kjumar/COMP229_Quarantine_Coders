@@ -106,6 +106,7 @@ module.exports.processSurveyRespondPage = (req, res, next) => {
 module.exports.displaySurveyDataPage = (req, res, next) => {
     let id = req.params.id;
 
+    // first check if the survey exists
     surveys.findById(id, (err, survey) => {
         if (err)
         {
@@ -113,6 +114,7 @@ module.exports.displaySurveyDataPage = (req, res, next) => {
         }
         else
         {
+            // then find all answers belonging to that survey
             shortAnswers.find({surveyID: id}, (err, shortAnswer) => {
                 if (err)
                 {
@@ -126,6 +128,34 @@ module.exports.displaySurveyDataPage = (req, res, next) => {
                         survey: survey,
                         responses: shortAnswer
                     });
+                }
+            });
+        }
+    });
+}
+
+module.exports.processDeleteSurvey = (req, res, next) => {
+    let id = req.params.id;
+
+    // first remove the answers
+    shortAnswers.remove({surveyID: id}, (err) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            // once all answers are removed, delete the parent survey
+            surveys.remove({_id: id}, (err) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    res.redirect('/');
                 }
             });
         }

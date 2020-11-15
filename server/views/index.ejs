@@ -65,9 +65,8 @@
                         </td>
 
                         <td class="text-center">
-                          <!-- -------------------------- -->
-                          <!-- ADD the DELETE BUTTON HERE -->
-                          <!-- -------------------------- -->
+                          <a href="/surveys/delete/<%= surveys[count]._id %>" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i> Delete </a>
                         </td>
                       </tr>
                       <% } %>
