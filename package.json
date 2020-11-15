@@ -6,6 +6,7 @@
     "start": "node ./server.js"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.1",
     "all": "0.0.0",
     "bootstrap": "^3.4.1",
     "cookie-parser": "~1.4.4",
