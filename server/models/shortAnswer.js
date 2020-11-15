@@ -21,4 +21,4 @@ let ShortAnswer = mongoose.Schema
     }
 );
 
-module.exports.ShortAnswer = mongoose.model('ShortAnswer', ShortAnswer);
+module.exports = mongoose.model('ShortAnswer', ShortAnswer);

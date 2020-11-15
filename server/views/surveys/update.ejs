@@ -1,0 +1,50 @@
+<!-- Header and Nav -->
+<%- include ../partials/header.ejs %>
+
+
+<%- include  ../partials/main_nav.ejs %>
+
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+
+    <div id="main-body" class="container-fluid" style="max-width: 100%; text-align: center; margin-bottom: 75px">
+      <main class="container-fluid">
+            <h1 class="display-4" style="text-align: center;">Create Survey</h1>
+            <br>
+    
+            <div id="main-body" class="container-fluid" style="max-width: 50%; text-align: center; margin-bottom: 75px; margin-left: 37%;">
+                
+                <div class="row">
+                    <div class="col-md-offset-3 col-md-6">
+            
+                        <form class="form" method="post">
+                            <div class="form-group">
+                            <label for="NameTextField">Question</label>
+                            <input type="text" class="form-control" id="QuestionTextField"
+                            placeholder="Survey Question" name="question" value="<%= survey.question %>" required>
+                            </div>
+                            <div class="form-group">
+                            <label for="PriceTextField">Survey Open Until</label>
+                            <input type="date" class="form-control" id="expiryDate"
+                            name="expiryDate" value="<%= survey.expires %>"  required>
+                            </div>
+            
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-check-square-o"></i> Submit</button>
+                            <a href="/books" class="btn btn-warning"><i class="fa fa-undo"></i> Cancel</a>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        
+        </main>
+    </div>
+
+<!-- Bottom Nav and Footer -->
+<%- include  ../partials/bottom_nav.ejs %>
+
+<%- include  ../partials/footer.ejs %>

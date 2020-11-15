@@ -8,29 +8,29 @@ let Survey = mongoose.Schema
             type: String,
             default: '',
             trim: true
+        },    
+        question:
+        {
+            type: String,
+            default: '',
+            trim: true
         },
-       question:
-       {
-        type: String,
-        default: '',
-        trim: true
-       },
-       surveyType:
-       {
-        type: String,
-        enum: ['shortAnswer', 'multipleChoice'],
-        default: 'shortAnswer'
-       },
-       created:
-       {
-        type: Date,
-        default: Date.now,
-       },
-       expires:
-       {
-           type: Date,
-           default: Date.now
-       }
+        surveyType:
+        {
+            type: String,
+            enum: ['shortAnswer', 'multipleChoice'],
+            default: 'shortAnswer'
+        },
+        created:
+        {
+            type: Date,
+            default: Date.now,
+        },
+        expires:
+        {
+            type: Date,
+            default: Date.now
+        }
     },
 
     {
@@ -38,4 +38,4 @@ let Survey = mongoose.Schema
     }
 );
 
-module.exports.Survey = mongoose.model('Survey', Survey);
+module.exports = mongoose.model('Survey', Survey);

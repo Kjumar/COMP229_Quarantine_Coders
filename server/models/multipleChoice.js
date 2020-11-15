@@ -26,4 +26,4 @@ let MultipleChoice = mongoose.Schema
     }
 );
 
-module.exports.MultiplceChoice = mongoose.model('MultipleChoice', MultipleChoice);
+module.exports = mongoose.model('MultipleChoice', MultipleChoice);

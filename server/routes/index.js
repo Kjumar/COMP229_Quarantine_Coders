@@ -15,9 +15,8 @@ router.get('/about', indexController.displayAboutPage);
 /* GET CONTACT US page. */
 router.get('/contact', indexController.displayContactPage);
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+router.get('/surveys/create', indexController.displaySurveyCreatePage);
+
+router.post('/surveys/create', indexController.processCreateShortAnswerSurvey);
 
 module.exports = router;
