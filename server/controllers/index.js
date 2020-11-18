@@ -1,9 +1,12 @@
 let express = require('express');
 let router = express.Router();
 let mongoose = require('mongoose');
+let passport = require('passport');
 
 let surveys = require('../models/survey');
 let shortAnswers = require('../models/shortAnswer');
+let userModel = require('../models/user');
+let User = userModel.User; //alias
 
 module.exports.displayHomePage = (req, res, next) => {
     // we should cull the number of surveys that show up on this page, but for now I'm listing all of them
@@ -200,7 +203,7 @@ module.exports.processLoginPage = (req, res, next) => {
             {
                 return next(err);
             }
-            return res.redirect('/contact-list');
+            return res.redirect('/');
         });
     })(req, res, next);
 }
@@ -255,7 +258,7 @@ module.exports.processRegisterPage = (req, res, next) => {
             // redirect and authenticate user
 
             return passport.authenticate('local')(req, res, () => {
-                res.redirect('/contact-list')
+                res.redirect('/')
             });
         }
     });
