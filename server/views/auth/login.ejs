@@ -4,7 +4,7 @@
 <%- include  ../partials/main_nav.ejs %>
 
 <!-- Login Page Content -->
-<main class="container">
+<main class="container1">
 <!-- Message Area -->
 <% if(messages.length > 0) {%>
     <div class="alert alert-danger">
@@ -12,36 +12,29 @@
     </div>
 <% } %>
 
-<dov class="row">
-    <div class="offset-md-4 col-md-4">
-        <h1>Please Login</h1>
-        <form method="POST" autocomplete="off">
-            <fieldset class="form-group">
-            <label for="username">Username: </label>
-            <input type="text" class="form-control"
-            name="username" placeholder="Enter Username"
-            id="username" required autofocus>
-        </fieldset>
+<div class="login-wrapper">
+    <div class="header">Please Login</div>
+    <br>
+    <form class="form blockquote" method="POST" autocomplete="off">
+        <div class="form-wrapper">
+            <input type="text" class="input-item" name="username" placeholder="Enter username"
+                id="username" required autofocus>
 
-        <fieldset class="form-group">
-            <label for="password">Password: </label>
-            <input type="password" class="form-control"
-            name="password" placeholder="Enter Password"
-            id="password" required>
-            or
-            <a href="/register">Register Here</a>
-        </fieldset>
+            <input type="password" class="input-item" name="password" placeholder="Enter password"
+                id="password" required autofocus>
 
-        <fieldset class="form-group text-right">
-            <input type="submit" class="btn btn-success" value="Login">
-            <a href="/">
-                <input type="warning" class="btn btn-warning" value="Cancel">
+            <h6>
+                or
+                <a href="/register">Register Here</a>
+            </h6>
+
+            <input type="submit" class="btn btn-outline-primary" value="Login">
+            <a href="/" class="">
+                <input type="button" class="btn btn-outline-danger" value="Cancel">
             </a>
-        </fieldset>
-
-        </form>
-    </div>
-</dov>
+        </div>
+    </form>
+</div>
 
 </main>
 

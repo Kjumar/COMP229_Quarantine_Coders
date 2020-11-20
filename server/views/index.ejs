@@ -30,7 +30,7 @@
           <div class="row justify-content-md-center">
               <div class="col-md-offset-3 col-md-12">
           
-                <a href="/surveys/create" class="btn btn-primary" role="button">
+                <a href="/surveys/create" class="btn btn-outline-primary" role="button">
                   <i class="fas fa-circle"></i> Add a Survey</a>
                 <br>
                 <br>
@@ -55,17 +55,17 @@
                         <td class="text-center"><%= surveys[count].expires %></td>
       
                         <td class="text-center">
-                          <a href="/surveys/respond/<%= surveys[count]._id %>" class="btn btn-primary">
+                          <a href="/surveys/respond/<%= surveys[count]._id %>" class="btn btn-outline-primary">
                             <i class="fas fa-pencil-alt"></i> Respond </a>
                         </td>
       
                         <td class="text-center">
-                          <a href="/surveys/<%= surveys[count]._id %>" class="btn btn-warning">
+                          <a href="/surveys/<%= surveys[count]._id %>" class="btn btn-outline-info">
                             <i class="fas fa-pencil-alt"></i> View Responses </a>
                         </td>
 
                         <td class="text-center">
-                          <a href="/surveys/delete/<%= surveys[count]._id %>" class="btn btn-danger">
+                          <a href="/surveys/delete/<%= surveys[count]._id %>" class="btn btn-outline-danger">
                             <i class="fas fa-trash-alt"></i> Delete </a>
                         </td>
                       </tr>
