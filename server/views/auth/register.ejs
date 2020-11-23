@@ -12,7 +12,7 @@
     </div>
 <% } %>
 
-<dov class="row">
+<!-- <dov class="row">
     <div class="offset-md-4 col-md-4">
         <h1>Please Register</h1>
         <form method="POST" autocomplete="off">
@@ -53,7 +53,32 @@
 
         </form>
     </div>
-</dov>
+</dov>-->
+
+<div class="register-wrapper">
+    <div class="header">Please Register</div>
+    <br>
+    <form class="form blockquote" method="POST" autocomplete="off">
+        <div class="form-wrapper">
+            <input type="text" class="input-item" name="username" placeholder="Enter username"
+                id="username" required autofocus>
+
+            <input type="password" class="input-item" name="password" placeholder="Enter password"
+                id="password" required autofocus>
+
+            <input type="email" class="input-item" name="email" placeholder="Enter email"
+            id="email" required autofocus>
+
+            <input type="displayName" class="input-item" name="displayName" placeholder="Enter display name"
+            id="displayName" required autofocus>
+
+            <input type="submit" class="btn btn-outline-primary" value="Register">
+            <a href="/" class="">
+                <input type="button" class="btn btn-outline-danger" value="Cancel">
+            </a>
+        </div>
+    </form>
+</div>
 
 </main>
 
