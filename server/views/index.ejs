@@ -61,12 +61,14 @@
                         <td><%= surveys[count].question %></td>
                         <td class="text-center"><%= surveys[count].expires %></td>
 
-                      <% if(typeof displayName == 'string' && displayName) { %>
+
 
                         <td class="text-center">
                           <a href="/surveys/respond/<%= surveys[count]._id %>" class="btn btn-outline-primary">
                             <i class="fas fa-pencil-alt"></i> Respond </a>
                         </td>
+
+                        <% if(typeof displayName == 'string' && displayName) { %>
       
                         <td class="text-center">
                           <a href="/surveys/<%= surveys[count]._id %>" class="btn btn-outline-info">
