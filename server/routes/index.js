@@ -15,6 +15,9 @@ router.get('/about', indexController.displayAboutPage);
 /* GET CONTACT US page. */
 router.get('/contact', indexController.displayContactPage);
 
+/* GET MY SURVEYS page. */
+router.get('/mysurveys', indexController.displayMySurveysPage);
+
 // short answer survey creation
 router.get('/surveys/create', indexController.displaySurveyCreatePage);
 
