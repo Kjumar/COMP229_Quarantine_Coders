@@ -39,15 +39,35 @@
           <a class="nav-link" href="/contact"><i class="fas fa-phone"></i> Contact </a>
         </li>
 
-        <% if(typeof displayName == 'string' && displayName) { %>
-        <li class="navbar-text"><i class="fas fa-lg fa-user"></i>Welcome, <%= displayName %></li>
-        <li class="nav-item"><a href="/logout" class="nav-link">
-          <i class="fas fa-lg fa-sign-out-alt"></i> Logout</a></li>
-        <% } else { %>
-        <li class="nav-item"><a href="/login" class="nav-link">
-          <i class="fas fa-lg fa-sign-in-alt"></i> Login</a></li>
-        <% } %>
+    </ul>
+  </div>
 
+  <!-- right-aligned nav items, related to personal profile -->
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav ml-auto">
+      <% if (typeof displayName == 'string' && displayName) {%>
+        <li class="nav-item">
+          <span class="navbar-text" style="color:azure"><i class="fas fa-lg fa-user"></i> Welcome, <%= displayName %> </span>
+        </li>
+        <% if (title == "My Surveys") { %>
+        <li class="nav-item active">
+        <% } else { %>
+        <li class="nav-item">
+        <% } %>
+          <a class="nav-link" href="/mysurveys"> My Surveys </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/logout"><i class="fas fa-lg fa-sign-out-alt"></i> Logout </a>
+        </li>
+      <% } else { %>
+        <% if (title == "Login") { %>
+        <li class="nav-item active"></li>
+        <% } else { %>
+        <li class="nav-item">
+        <% } %>
+          <a class="nav-link" href="/login"><i class="fas fa-lg fa-sign-in-alt"></i> Login </a>
+        </li>
+      <% } %>
     </ul>
   </div>
 </nav>
