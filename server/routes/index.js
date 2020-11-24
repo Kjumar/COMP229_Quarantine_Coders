@@ -18,7 +18,22 @@ router.get('/contact', indexController.displayContactPage);
 // short answer survey creation
 router.get('/surveys/create', indexController.displaySurveyCreatePage);
 
-router.post('/surveys/create', indexController.processCreateShortAnswerSurvey);
+router.get('/surveys/update/:id', indexController.displaySurveyUpdatePage);
+
+router.post('/surveys/update/:id', indexController.processSurveyUpdate);
+
+// GET survey question CREATE page
+router.get('/surveys/update/addquestion/:id', indexController.displayQuestionCreatePage);
+
+router.post('/surveys/update/addquestion/:id', indexController.processQuestionCreatePage);
+
+// update survey question
+router.get('/surveys/update/question/:questionID', indexController.displayQuestionUpdatePage);
+
+router.post('/surveys/update/question/:questionID', indexController.processQuestionUpdatePage);
+
+// GET delete survey question
+router.get('/surveys/update/question/delete/:questionID', indexController.processDeleteQuestion);
 
 // short answer survey response
 router.get('/surveys/respond/:id', indexController.displaySurveyRespondPage);

@@ -9,17 +9,11 @@ let Survey = mongoose.Schema
             default: '',
             trim: true
         },    
-        question:
+        title:
         {
             type: String,
             default: '',
             trim: true
-        },
-        surveyType:
-        {
-            type: String,
-            enum: ['shortAnswer', 'multipleChoice'],
-            default: 'shortAnswer'
         },
         created:
         {
