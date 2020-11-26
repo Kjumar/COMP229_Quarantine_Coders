@@ -9,9 +9,7 @@
             <h1 class="display-4" style="text-align: center;">Simple Surveys</h1>
             <h4 class="display-8" style="text-align: center;">by Quarantine Coders</h4>
             <br>
-    
-        <h3 style="text-align: center;">Get the answers you need, for the price you deserve!</h3>
-        <br>
+            <br>
     
         <!-- Survey Start - Just Button for now -->
     
@@ -19,11 +17,20 @@
     
           <div class="row justify-content-md-center">
               <div class="col-md-offset-3 col-md-12">
-          
+              
+              <% if(typeof displayName == 'string' && displayName) { %>     
+
                 <a href="/surveys/create" class="btn btn-outline-primary" role="button">
                   <i class="fas fa-circle"></i> Add a Survey</a>
                 <br>
                 <br>
+              
+              <% } %>
+
+              <h2 class="text-center"> Current Surveys </h2>
+              <br>
+
+
                 <div class="table-responsive">
                   <table class="table table-bordered table-striped table-hover">
                     <thead>
@@ -43,13 +50,17 @@
                         <td><%= surveys[count].creator %></td>
                         <td><%= surveys[count].question %></td>
                         <td class="text-center"><%= surveys[count].expires %></td>
-      
+
+
+
                         <td class="text-center">
                           <% if (surveys[count].head) { %>
                           <a href="/surveys/respond/<%= surveys[count].head %>" class="btn btn-outline-primary">
                             <i class="fas fa-pencil-alt"></i> Respond </a>
                           <% } %>
                         </td>
+
+                        <% if(typeof displayName == 'string' && displayName) { %>
       
                         <td class="text-center">
                           <a href="/surveys/<%= surveys[count]._id %>" class="btn btn-outline-info">
@@ -60,6 +71,7 @@
                           <a href="/surveys/delete/<%= surveys[count]._id %>" class="btn btn-outline-danger">
                             <i class="fas fa-trash-alt"></i> Delete </a>
                         </td>
+                          <% } %>
                       </tr>
                       <% } %>
                     </tbody>
@@ -71,6 +83,14 @@
           </div>
     
         <!-- Survey End -->
+
+        <h5 style="text-align: center;">Get the answers you need, for the price you deserve!</h5>
+
+        <h5 style="text-align: center;">Start your free surveys today! Sign up <a href="/register">here</a>.</h5>
+        <h6 style="text-align: center;">Already a member? <a href="/login">Sign in</a> to create your surveys now!.</h6>
+        <br>
+        <br>
+        <br>
     
     
         <!-- Table of Facts -->
@@ -97,14 +117,6 @@
           </tr>
           </tbody>
           </table>
-          <br>
-          <br>
-          <br>
-          
-          <!-- Will Link to Register and Login Pages -->
-
-          <h5 style="text-align: center;">Start your free surveys today! Sign up <a href="/register">here</a>.</h5>
-          <h6 style="text-align: center;">Already a member? <a href="/login">Sign in</a> to create your surveys now!.</h6>
     
     </main></div>
 

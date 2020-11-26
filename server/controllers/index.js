@@ -35,6 +35,10 @@ module.exports.displayContactPage = (req, res, next) => {
     res.render('contact', { title: 'Contact', displayName: req.user ? req.user.displayName : ''}); 
 }
 
+module.exports.displayMySurveysPage = (req, res, next) => {
+    res.render('mysurveys', { title: 'My Surveys', displayName: req.user ? req.user.displayName : ''}); 
+}
+
 // Get surveys/update to add a new survey
 module.exports.displaySurveyCreatePage = (req, res, next) => {
     let newSurvey = surveys({
