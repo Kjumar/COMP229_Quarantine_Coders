@@ -78,7 +78,7 @@ module.exports.displaySurveyUpdatePage = (req, res, next) => {
                 {
                     res.render('surveys/updateSurvey', {
                         title: 'Create Survey',
-                        displayName: req.user ? res.user.displayName : '',
+                        displayName: req.user ? req.user.displayName : '',
                         survey: survey,
                         surveyQuestions: surveyQuestions
                     });
