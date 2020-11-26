@@ -1,18 +1,8 @@
-<!DOCTYPE html>
-
-
 <!-- Header and Nav -->
 <%- include partials/header.ejs %>
 
 
 <%- include  partials/main_nav.ejs %>
-
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
 
     <div id="main-body" class="container-fluid" style="max-width: 100%; text-align: center; margin-bottom: 75px">
       <main class="container-fluid">
@@ -46,7 +36,7 @@
                     <thead>
                       <tr>
                         <th class="text-center">Creator</th>
-                        <th class="text-center">Question</th>
+                        <th class="text-center">Title</th>
                         <th class="text-center">Expires</th>
                         <th class="text-center"></th>
                         <th class="text-center"></th>
@@ -64,8 +54,10 @@
 
 
                         <td class="text-center">
-                          <a href="/surveys/respond/<%= surveys[count]._id %>" class="btn btn-outline-primary">
+                          <% if (surveys[count].head) { %>
+                          <a href="/surveys/respond/<%= surveys[count].head %>" class="btn btn-outline-primary">
                             <i class="fas fa-pencil-alt"></i> Respond </a>
+                          <% } %>
                         </td>
 
                         <% if(typeof displayName == 'string' && displayName) { %>
@@ -127,10 +119,6 @@
           </table>
     
     </main></div>
-
-
-  </body>
-</html>
 
 
 <!-- Bottom Nav and Footer -->

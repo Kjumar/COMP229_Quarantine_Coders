@@ -15,6 +15,7 @@ let flash = require('connect-flash');
 let mongoose = require('mongoose');
 let DB = require('./db');
 
+mongoose.set('useFindAndModify', false);
 mongoose.connect(process.env.URI || DB.URI, {useNewUrlParser: true, useUnifiedTopology: true});
 
 let mongoDB = mongoose.connection;

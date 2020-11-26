@@ -4,6 +4,7 @@ let mongoose = require('mongoose');
 let passport = require('passport');
 
 let surveys = require('../models/survey');
+let surveyQuestions = require('../models/surveyQuestion');
 let shortAnswers = require('../models/shortAnswer');
 let userModel = require('../models/user');
 let User = userModel.User; //alias
@@ -40,23 +41,65 @@ module.exports.displayMySurveysPage = (req, res, next) => {
 
 // Get surveys/update to add a new survey
 module.exports.displaySurveyCreatePage = (req, res, next) => {
-    res.render('surveys/update', {
-        title: 'Create Survey',
-        displayName: req.user ? req.user.displayName : '',
-        survey: ''
-    }); 
+    let newSurvey = surveys({
+        'creator': 'Admin',
+        'title': 'New Survey'
+    });
+
+    surveys.create(newSurvey, (err, newSurvey) => {
+        if(err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            res.redirect('/surveys/update/'+newSurvey._id);
+        }
+    });
 }
 
-// POST process the surveys/update page to add a new ShortAnswer survey
-module.exports.processCreateShortAnswerSurvey = (req, res, next) => {
+module.exports.displaySurveyUpdatePage = (req, res, next) => {
+    let id = req.params.id;
+
+    surveys.findById(id, (err, survey) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            surveyQuestions.find({surveyID: survey._id}, (err, surveyQuestions) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    res.render('surveys/updateSurvey', {
+                        title: 'Create Survey',
+                        displayName: req.user ? req.user.displayName : '',
+                        survey: survey,
+                        surveyQuestions: surveyQuestions
+                    });
+                }
+            });
+        }
+    });
+}
+
+// POST process the surveys/update page to add a new  survey
+module.exports.processSurveyUpdate = (req, res, next) => {
+    let id = req.params.id;
+
     let newSurvey = surveys({
+        '_id': id,
         'creator': 'Admin', // for now, since we don't have authentication yet
-        'question': req.body.question,
-        'surveyType': 'shortAnswer',
+        'title': req.body.title,
         'expires': req.body.expiryDate
     });
 
-    surveys.create(newSurvey, (err, survey) => {
+    surveys.updateOne({_id: id}, newSurvey, (err, survey) => {
         if (err)
         {
             console.log(err);
@@ -69,8 +112,8 @@ module.exports.processCreateShortAnswerSurvey = (req, res, next) => {
     });
 }
 
-// GET survey response page and respond to a survey
-module.exports.displaySurveyRespondPage = (req, res, next) => {
+// GET survey question create page
+module.exports.displayQuestionCreatePage = (req, res, next) => {
     let id = req.params.id;
 
     surveys.findById(id, (err, survey) => {
@@ -80,10 +123,138 @@ module.exports.displaySurveyRespondPage = (req, res, next) => {
         }
         else
         {
+            let newSurveyQuestion = surveyQuestions({
+                surveyID: survey._id,
+                question: 'Survey Question',
+                prev: null,
+                next: null
+            });
+
+            res.render('surveys/updateQuestion', {
+                title: 'Ask a Question',
+                displayName: req.user ? req.user.displayName: '',
+                surveyQuestion: newSurveyQuestion
+            });
+        }
+    });
+}
+
+module.exports.processQuestionCreatePage = (req, res, next) => {
+    let id = req.params.id;
+
+    surveys.findById(id, (err, survey) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            let prev = undefined;
+            if (survey.tail != null)
+            {
+                prev = survey.tail;
+            }
+            let newSurveyQuestion = surveyQuestions({
+                surveyID: survey._id,
+                question: req.body.question,
+                prev: prev
+            });
+
+            surveyQuestions.create(newSurveyQuestion, (err, surveyQuestion) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    if (survey.tail != null)
+                    {
+                        surveyQuestions.updateOne({_id: survey.tail}, {'next': surveyQuestion._id}, (err, question) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                        surveys.updateOne({_id: survey._id}, {'tail': surveyQuestion._id}, (err, survey) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        surveys.updateOne({_id: survey._id}, {'tail': surveyQuestion._id, 'head': surveyQuestion._id}, (err, survey) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    res.redirect('/surveys/update/'+id);
+                }
+            })
+        }
+    });
+}
+
+// GET survey question update page
+module.exports.displayQuestionUpdatePage = (req, res, next) => {
+    let questionID = req.params.questionID;
+
+    surveyQuestions.findById(questionID, (err, surveyQuestion) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            res.render('surveys/updateQuestion', {
+                title: 'Update Question',
+                displayName: req.user ? req.user.displayName : '',
+                surveyQuestion: surveyQuestion
+            });
+        }
+    });
+}
+
+module.exports.processQuestionUpdatePage = (req, res, next) => {
+    let questionID = req.params.questionID;
+    
+    surveyQuestions.findOneAndUpdate({_id: questionID}, {'question': req.body.question}, (err, surveyQuestion) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            console.log(surveyQuestion.surveyID);
+            res.redirect('/surveys/update/'+surveyQuestion.surveyID);
+        }
+    });
+}
+
+// GET survey response page and respond to a survey
+module.exports.displaySurveyRespondPage = (req, res, next) => {
+    let id = req.params.id;
+
+    surveyQuestions.findById(id, (err, question) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
             res.render('surveys/respond', {
                 title: 'Respond to Survey',
                 displayName: req.user ? req.user.displayName : '',
-                survey: survey
+                question: question
             });
         }
     });
@@ -92,12 +263,7 @@ module.exports.displaySurveyRespondPage = (req, res, next) => {
 module.exports.processSurveyRespondPage = (req, res, next) => {
     let id = req.params.id;
 
-    let newResponse = shortAnswers({
-        'surveyID': id,
-        'response': req.body.response
-    });
-
-    shortAnswers.create(newResponse, (err, shortAnswer) => {
+    surveyQuestions.findById(id, (err, question) => {
         if (err)
         {
             console.log(err);
@@ -105,9 +271,41 @@ module.exports.processSurveyRespondPage = (req, res, next) => {
         }
         else
         {
-            res.redirect('/'); // should redirect to a page that confirms to the use that their response has been recorded
+            let newResponse = shortAnswers({
+                'questionID': question._id,
+                'response': req.body.response
+            });
+
+            shortAnswers.create(newResponse, (err, shortAnswer) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    if (question.next)
+                    {
+                        surveyQuestions.findById(question.next, (err, nextQuestion) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                            else
+                            {
+                                res.redirect('/surveys/respond/'+nextQuestion._id);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.redirect('/');
+                    }
+                }
+            });
         }
-    })
+    });
 }
 
 module.exports.displaySurveyDataPage = (req, res, next) => {
@@ -122,18 +320,47 @@ module.exports.displaySurveyDataPage = (req, res, next) => {
         else
         {
             // then find all answers belonging to that survey
-            shortAnswers.find({surveyID: id}, (err, shortAnswer) => {
+            surveyQuestions.find({surveyID: id}, (err, questions) => {
                 if (err)
                 {
                     return console.log(err);
                 }
                 else
                 {
-                    res.render('surveys/view', {
-                        title: 'Respond to Survey',
+                    res.render('surveys/viewSurvey', {
+                        title: 'Survey Responses',
                         displayName: req.user ? req.user.displayName : '',
                         survey: survey,
-                        responses: shortAnswer
+                        questions: questions
+                    });
+                }
+            });
+        }
+    });
+}
+
+module.exports.displayQuestionDataPage = (req, res, next) => {
+    let id = req.params.id;
+
+    surveyQuestions.findById(id, (err, question) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            shortAnswers.find({questionID: question._id}, (err, responses) => {
+                if (err)
+                {
+                    return console.log(err);
+                }
+                else
+                {
+                    res.render('surveys/viewResponses', {
+                        title: 'Responses',
+                        displayName: req.user ? req.user.displayName : '',
+                        question: question,
+                        responses: responses
                     });
                 }
             });
@@ -144,8 +371,30 @@ module.exports.displaySurveyDataPage = (req, res, next) => {
 module.exports.processDeleteSurvey = (req, res, next) => {
     let id = req.params.id;
 
-    // first remove the answers
-    shortAnswers.remove({surveyID: id}, (err) => {
+    surveyQuestions.find({surveyID: id}, (err, questions) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else if (questions.length > 0)
+        {
+            for (var i = 0; i < questions.length; i++)
+            {
+                // remove short answers belonging to the question
+                shortAnswers.deleteMany({questionID: questions[i]._id}, (err) => {
+                    if (err)
+                    {
+                        console.log(err);
+                        res.end(err);
+                    }
+                });
+
+                // TODO: remove all multiple choice responses belonging to the quesiton
+            }
+        }
+    });
+
+    surveyQuestions.deleteMany({surveyID: id}, (err) => {
         if (err)
         {
             console.log(err);
@@ -153,8 +402,7 @@ module.exports.processDeleteSurvey = (req, res, next) => {
         }
         else
         {
-            // once all answers are removed, delete the parent survey
-            surveys.remove({_id: id}, (err) => {
+            surveys.deleteOne({_id: id}, (err) => {
                 if (err)
                 {
                     console.log(err);
@@ -163,6 +411,107 @@ module.exports.processDeleteSurvey = (req, res, next) => {
                 else
                 {
                     res.redirect('/');
+                }
+            });
+        }
+    });
+}
+
+module.exports.processDeleteQuestion = (req, res, next) => {
+    let id = req.params.questionID;
+
+    surveyQuestions.findById(id, (err, surveyQuestion) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            let surveyID = surveyQuestion.surveyID;
+            shortAnswers.deleteMany({questionID: surveyQuestion._id}, (err) => {
+                if (err)
+                {
+                    return console.log(err);
+                }
+                else
+                {
+                    // re-link the previous and next questions
+                    if (!surveyQuestion.prev && !surveyQuestion.next)
+                    {
+                        // if we get in here, we are deleting the only question in the survey
+                        surveys.updateOne({_id: surveyID}, { $unset: {head: "", tail: ""} }, (err) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    else if (!surveyQuestion.prev)
+                    {
+                        // here we are deleting the survey's head
+                        surveys.updateOne({_id: surveyID}, {'head': surveyQuestion.next}, (err) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                        surveyQuestions.updateOne({_id: surveyQuestion.next}, { $unset: {prev: ""}}, (err) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    else if (!surveyQuestion.next)
+                    {
+                        // here, we would be deleting the survey's tail
+                        surveys.updateOne({_id: surveyID}, {'tail': surveyQuestion.prev}, (err, survey) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                        surveyQuestions.updateOne({_id: surveyQuestion.prev}, { $unset: {next: ""}}, (err) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        // here, we're somewhere in the middle so we need to link the prev and next questions to eachother
+                        surveyQuestions.updateOne({_id: surveyQuestion.prev}, {'next': surveyQuestion.next}, (err, question) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                        surveyQuestions.updateOne({_id: surveyQuestion.next}, {'prev': surveyQuestion.prev}, (err, question) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    // now we can delete the question
+                    surveyQuestions.deleteOne({_id: surveyQuestion._id}, (err) => {
+                        if (err)
+                        {
+                            return console.log(err);
+                        }
+                        else
+                        {
+                            res.redirect('/surveys/update/'+surveyID);
+                        }
+                    });
                 }
             });
         }

@@ -1,0 +1,25 @@
+<!-- Header and Nav -->
+<%- include ../partials/header.ejs %>
+
+
+<%- include  ../partials/main_nav.ejs %>
+
+    <div class="register-wrapper">
+        <div class="header">Edit Question</div>
+        <br>
+        <form class="form blockquote" method="POST" autocomplete="off">
+            <div class="form-wrapper">
+                <label for="QuestionTextField">Question</label>
+                <input type="text" class="form-control" id="NameTextField"
+                placeholder="Question" name="question" value="<%= surveyQuestion.question %>" required>
+
+                <input type="submit" class="btn btn-outline-primary" value="Submit">
+                <a href="/surveys/update/<%= surveyQuestion.surveyID %>" class="btn btn-outline-danger">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+<!-- Bottom Nav and Footer -->
+<%- include  ../partials/bottom_nav.ejs %>
+
+<%- include  ../partials/footer.ejs %>

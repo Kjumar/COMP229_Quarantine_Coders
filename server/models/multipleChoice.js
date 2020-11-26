@@ -3,10 +3,10 @@ let mongoose = require('mongoose');
 let MultipleChoice = mongoose.Schema
 (
     {
-        surveyID:
+        questionID:
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Survey'
+            ref: 'SurveyQuestion'
         },
         option:
         {

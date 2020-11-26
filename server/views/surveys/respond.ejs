@@ -4,13 +4,6 @@
 
 <%- include  ../partials/main_nav.ejs %>
 
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-
     <div id="main-body" class="container-fluid" style="max-width: 100%; text-align: center; margin-bottom: 75px">
       <main class="container-fluid">
             <h1 class="display-4" style="text-align: center;">Respond to Survey</h1>
@@ -24,12 +17,11 @@
             
                         <form class="form" method="post">
                             <div class="form-group">
-                                <label for="reponse">Question: <br> <%= survey.question %></label>
+                                <label for="reponse">Question: <br> <%= question.question %></label>
                                 <textarea style="width:100%;" id="response" name="response" rows="8"></textarea>
                             </div>
             
-                            <button type="submit" class="btn btn-primary"><i class="fa fa-check-square-o"></i> Submit</button>
-                            <a href="/home" class="btn btn-warning"><i class="fa fa-undo"></i> Cancel</a>
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-check-square-o"></i> Next </button>
                         </form>
                         
                     </div>
