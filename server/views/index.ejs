@@ -45,8 +45,10 @@
                         <td class="text-center"><%= surveys[count].expires %></td>
       
                         <td class="text-center">
-                          <a href="/surveys/respond/<%= surveys[count]._id %>" class="btn btn-outline-primary">
+                          <% if (surveys[count].head) { %>
+                          <a href="/surveys/respond/<%= surveys[count].head %>" class="btn btn-outline-primary">
                             <i class="fas fa-pencil-alt"></i> Respond </a>
+                          <% } %>
                         </td>
       
                         <td class="text-center">

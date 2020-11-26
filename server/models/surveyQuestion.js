@@ -19,6 +19,16 @@ let SurveyQuestion = mongoose.Schema
             type: String,
             enum: ['shortAnswer', 'multipleChoice'],
             default: 'shortAnswer'
+        },
+        prev:
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SurveyQuestion'
+        },
+        next:
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SurveyQuestion'
         }
     },
 

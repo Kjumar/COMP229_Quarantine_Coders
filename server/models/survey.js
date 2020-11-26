@@ -1,4 +1,5 @@
 let mongoose = require('mongoose');
+const surveyQuestion = require('./surveyQuestion');
 
 let Survey = mongoose.Schema
 (
@@ -24,6 +25,16 @@ let Survey = mongoose.Schema
         {
             type: Date,
             default: Date.now
+        },
+        head:
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SurveyQuestion'
+        },
+        tail:
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SurveyQuestion'
         }
     },
 
