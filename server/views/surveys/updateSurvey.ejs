@@ -3,9 +3,11 @@
 
 
 <%- include  ../partials/main_nav.ejs %>
+<main class="container blockquote">
+  <div class="container">
+    <div class="jumbotron shadow-sm">
 
-    <div class="register-wrapper">
-        <div class="header">Create Survey</div>
+      <div class="header">Create Survey</div>
         <br>
         <form class="form blockquote" method="POST" autocomplete="off">
             <div class="form-wrapper">
@@ -17,8 +19,9 @@
                 <input type="date" class="form-control" id="expiryDate"
                 name="expiryDate" value="<%= survey.expires %>"  required> 
 
-                <input type="submit" class="btn btn-outline-primary" value="Submit">
+                <input type="submit" class="btn btn-outline-primary" value="Save">
                 <a href="/" class="btn btn-outline-danger">Cancel</a>
+                <a href="/surveys/publish/<%= survey._id %>" class="btn btn-outline-warning">Publish</a>
             </div>
         </form>
 
@@ -50,7 +53,10 @@
           <a href="/surveys/update/addquestion/<%= survey._id %>" class="btn btn-outline-primary">Add Short Answer Question</a>
           <!-- <a href="survey/question/addshortanswer" class="btn btn-outline-primary">Add Multiple Choice Question</a> -->
         </div>
+
     </div>
+  </div>
+</main>
 
 <!-- Bottom Nav and Footer -->
 <%- include  ../partials/bottom_nav.ejs %>

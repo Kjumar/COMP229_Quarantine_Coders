@@ -11,7 +11,7 @@ let User = userModel.User; //alias
 
 module.exports.displayHomePage = (req, res, next) => {
     // we should cull the number of surveys that show up on this page, but for now I'm listing all of them
-    surveys.find((err, surveys) => {
+    surveys.find({published: true}, (err, surveys) => {
         if (err)
         {
             return console.error(err);
@@ -61,7 +61,7 @@ module.exports.displayMySurveysPage = (req, res, next) => {
 // Get surveys/update to add a new survey
 module.exports.displaySurveyCreatePage = (req, res, next) => {
     let newSurvey = surveys({
-        'creator': 'Admin',
+        'creator': req.user.displayName,
         'title': 'New Survey'
     });
 
@@ -113,7 +113,7 @@ module.exports.processSurveyUpdate = (req, res, next) => {
 
     let newSurvey = surveys({
         '_id': id,
-        'creator': 'Admin', // for now, since we don't have authentication yet
+        'creator': req.user.displayName,
         'title': req.body.title,
         'expires': req.body.expiryDate
     });
@@ -127,6 +127,21 @@ module.exports.processSurveyUpdate = (req, res, next) => {
         else
         {
             res.redirect('/')
+        }
+    });
+}
+
+module.exports.processSurveyPublish = (req, res, next) => {
+    let id = req.params.id;
+
+    surveys.updateOne({_id: id}, {published: true}, (err) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            res.redirect('/');
         }
     });
 }

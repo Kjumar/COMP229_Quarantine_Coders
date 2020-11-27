@@ -25,6 +25,9 @@ router.get('/surveys/update/:id', indexController.displaySurveyUpdatePage);
 
 router.post('/surveys/update/:id', indexController.processSurveyUpdate);
 
+// GET publish survey
+router.get('/surveys/publish/:id', indexController.processSurveyPublish);
+
 // GET survey question CREATE page
 router.get('/surveys/update/addquestion/:id', indexController.displayQuestionCreatePage);
 

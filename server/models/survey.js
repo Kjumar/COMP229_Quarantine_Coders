@@ -35,6 +35,11 @@ let Survey = mongoose.Schema
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'SurveyQuestion'
+        },
+        published:
+        {
+            type: Boolean,
+            default: false
         }
     },
 

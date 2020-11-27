@@ -46,16 +46,14 @@
                   <% for (let count = 0; count < surveys.length; count++) { %>
                   <tr>
                     <td><%= surveys[count].creator %></td>
-                    <td><%= surveys[count].question %></td>
+                    <td><%= surveys[count].title %></td>
                     <td class="text-center"><%= surveys[count].expires %></td>
 
 
 
                     <td class="text-center">
-                      <% if (surveys[count].head) { %>
-                      <a href="/surveys/respond/<%= surveys[count].head %>" class="btn btn-outline-primary">
-                        <i class="fas fa-pencil-alt"></i> Respond </a>
-                      <% } %>
+                      <a href="/surveys/update/<%= surveys[count]._id %>" class="btn btn-outline-primary">
+                        <i class="fas fa-pencil-alt"></i> Update </a>
                     </td>
 
                     <% if(typeof displayName == 'string' && displayName) { %>
