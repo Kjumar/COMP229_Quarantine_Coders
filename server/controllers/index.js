@@ -36,8 +36,27 @@ module.exports.displayContactPage = (req, res, next) => {
 }
 
 module.exports.displayMySurveysPage = (req, res, next) => {
+    surveys.find((err, surveys) => {
+        if (err)
+        {
+            return console.error(err);
+        }
+        else
+        {
+            res.render('mysurveys', {
+                title: 'My Surveys',
+                displayName: req.user ? req.user.displayName : '',
+                surveys: surveys
+            });
+        }
+    });
+}
+
+/*
+module.exports.displayMySurveysPage = (req, res, next) => {
     res.render('mysurveys', { title: 'My Surveys', displayName: req.user ? req.user.displayName : ''}); 
 }
+*/
 
 // Get surveys/update to add a new survey
 module.exports.displaySurveyCreatePage = (req, res, next) => {
