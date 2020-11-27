@@ -12,11 +12,73 @@
   </head>
   <body>
 
-    <h1 style=text-align:center><%= title %></h1>
+    <div id="main-body" class="container-fluid" style="max-width: 80%; text-align: center; margin-bottom: 75px; margin-left: 10%;">
+    
+      <div class="row justify-content-md-center">
+          <div class="col-md-offset-3 col-md-12">
 
-    <!--My Survey Content to go below-->
+          <h2 class="text-center"> Current Surveys </h2>
+          <br>
 
-    <p style=text-align:center>This is where the relevant My Surveys content will go.</p>
+          <% if(typeof displayName == 'string' && displayName) { %>     
+
+            <a href="/surveys/create" class="btn btn-outline-primary" role="button">
+              <i class="fas fa-circle"></i> Add a Survey</a>
+            <br>
+            <br>
+          
+          <% } %>
+
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th class="text-center">Creator</th>
+                    <th class="text-center">Title</th>
+                    <th class="text-center">Expires</th>
+                    <th class="text-center"></th>
+                    <th class="text-center"></th>
+                    <th class="text-center"></th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <!-- Template Row -->
+                  <% for (let count = 0; count < surveys.length; count++) { %>
+                  <tr>
+                    <td><%= surveys[count].creator %></td>
+                    <td><%= surveys[count].question %></td>
+                    <td class="text-center"><%= surveys[count].expires %></td>
+
+
+
+                    <td class="text-center">
+                      <% if (surveys[count].head) { %>
+                      <a href="/surveys/respond/<%= surveys[count].head %>" class="btn btn-outline-primary">
+                        <i class="fas fa-pencil-alt"></i> Respond </a>
+                      <% } %>
+                    </td>
+
+                    <% if(typeof displayName == 'string' && displayName) { %>
+  
+                    <td class="text-center">
+                      <a href="/surveys/<%= surveys[count]._id %>" class="btn btn-outline-info">
+                        <i class="fas fa-pencil-alt"></i> View Responses </a>
+                    </td>
+
+                    <td class="text-center">
+                      <a href="/surveys/delete/<%= surveys[count]._id %>" class="btn btn-outline-danger">
+                        <i class="fas fa-trash-alt"></i> Delete </a>
+                    </td>
+                      <% } %>
+                  </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+      </div>
+      </div>
 
   </body>
 </html>
