@@ -320,17 +320,7 @@ module.exports.processSurveyRespondPage = (req, res, next) => {
                 {
                     if (question.next)
                     {
-                        surveyQuestions.findById(question.next, (err, nextQuestion) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                            else
-                            {
-                                res.redirect('/surveys/respond/'+nextQuestion._id);
-                            }
-                        });
+                        res.redirect('/surveys/respond/'+question.next);
                     }
                     else
                     {
