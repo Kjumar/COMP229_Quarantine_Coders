@@ -38,7 +38,7 @@
                         <th class="text-center">Creator</th>
                         <th class="text-center">Title</th>
                         <th class="text-center">Expires</th>
-                        <th class="text-center"></th>
+                        <th class="text-center">Operations</th>
                       </tr>
                       </thead>
                       <tbody>
@@ -55,6 +55,7 @@
                           <% if (surveys[count].head) { %>
                           <a href="/surveys/respond/<%= surveys[count].head %>" class="btn btn-outline-primary">
                             <i class="fas fa-pencil-alt"></i> Respond </a>
+                            <div class="fb-share-button" data-href="https://quarantinecoders.herokuapp.com//surveys/respond/<%= surveys[count].head %>" data-layout="button" data-size="small"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fquarantinecoders.herokuapp.com%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div>
                           <% } %>
                         </td>
                       </tr>
