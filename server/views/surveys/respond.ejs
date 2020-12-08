@@ -17,8 +17,16 @@
             
                         <form class="form" method="post">
                             <div class="form-group">
-                                <label for="reponse">Question: <br> <%= question.question %></label>
-                                <textarea style="width:100%;" id="response" name="response" rows="8"></textarea>
+                                <% if (question.questionType == 'multipleChoice') { %>
+                                    <p>Question: <br> <%= question.question %></p><br>
+                                    <% for (let count = 0; count < options.length; count++) { %>
+                                        <input type="radio" id="option<%= count %>" name="response" value="<%= options[count].option %>">
+                                        <label for="option<%= count %>"><%= options[count].option %></label><br>
+                                    <% } %>
+                                <% } else { %>
+                                    <label for="reponse">Question: <br> <%= question.question %></label>
+                                    <textarea style="width:100%;" id="response" name="response" rows="8"></textarea>
+                                <% } %>
                             </div>
             
                             <button type="submit" class="btn btn-primary"><i class="fa fa-check-square-o"></i> Next </button>

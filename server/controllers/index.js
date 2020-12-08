@@ -464,11 +464,33 @@ module.exports.displaySurveyRespondPage = (req, res, next) => {
         }
         else
         {
-            res.render('surveys/respond', {
+            if (question.questionType == 'multipleChoice')
+            {
+                // find all options for this question
+                multipleChoice.find({questionID: question._id}, (err, mCOptions) => {
+                    if (err)
+                    {
+                        return console.log(err);
+                    }
+                    else
+                    {
+                        res.render('surveys/respond', {
+                            title: 'Respond to Survey',
+                            displayName: req.user ? req.user.displayName : '',
+                            question: question,
+                            options: mCOptions
+                        });
+                    }
+                });
+            }
+            else
+            {
+                res.render('surveys/respond', {
                 title: 'Respond to Survey',
                 displayName: req.user ? req.user.displayName : '',
                 question: question
             });
+            }
         }
     });
 }
@@ -484,29 +506,63 @@ module.exports.processSurveyRespondPage = (req, res, next) => {
         }
         else
         {
-            let newResponse = shortAnswers({
-                'questionID': question._id,
-                'response': req.body.response
-            });
-
-            shortAnswers.create(newResponse, (err, shortAnswer) => {
-                if (err)
-                {
-                    console.log(err);
-                    res.end(err);
-                }
-                else
-                {
-                    if (question.next)
+            if (question.questionType == 'multipleChoice')
+            {
+                multipleChoice.findOne({option: req.body.response}, (err, mCOption) => {
+                    if (err)
                     {
-                        res.redirect('/surveys/respond/'+question.next);
+                        console.log(err);
+                        res.end(err);
                     }
                     else
                     {
-                        res.redirect('/');
+                        multipleChoice.findByIdAndUpdate(mCOption._id, {responses: mCOption.responses + 1}, (err, mCOption) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                            else
+                            {
+                                if (question.next)
+                                {
+                                    res.redirect('/surveys/respond/'+question.next);
+                                }
+                                else
+                                {
+                                    res.redirect('/');
+                                }
+                            }
+                        });
                     }
-                }
-            });
+                });
+            }
+            else
+            {
+                let newResponse = shortAnswers({
+                    'questionID': question._id,
+                    'response': req.body.response
+                });
+
+                shortAnswers.create(newResponse, (err, shortAnswer) => {
+                    if (err)
+                    {
+                        console.log(err);
+                        res.end(err);
+                    }
+                    else
+                    {
+                        if (question.next)
+                        {
+                            res.redirect('/surveys/respond/'+question.next);
+                        }
+                        else
+                        {
+                            res.redirect('/');
+                        }
+                    }
+                });
+            }
         }
     });
 }
@@ -552,21 +608,42 @@ module.exports.displayQuestionDataPage = (req, res, next) => {
         }
         else
         {
-            shortAnswers.find({questionID: question._id}, (err, responses) => {
-                if (err)
-                {
-                    return console.log(err);
-                }
-                else
-                {
-                    res.render('surveys/viewResponses', {
-                        title: 'Responses',
-                        displayName: req.user ? req.user.displayName : '',
-                        question: question,
-                        responses: responses
-                    });
-                }
-            });
+            if (question.questionType == 'multipleChoice')
+            {
+                multipleChoice.find({questionID: question._id}, (err, responses) => {
+                    if (err)
+                    {
+                        return console.log(err);
+                    }
+                    else
+                    {
+                        res.render('surveys/viewResponses', {
+                            title: 'Responses',
+                            displayName: req.user ? req.user.displayName : '',
+                            question: question,
+                            responses: responses
+                        });
+                    }
+                });
+            }
+            else
+            {
+                shortAnswers.find({questionID: question._id}, (err, responses) => {
+                    if (err)
+                    {
+                        return console.log(err);
+                    }
+                    else
+                    {
+                        res.render('surveys/viewResponses', {
+                            title: 'Responses',
+                            displayName: req.user ? req.user.displayName : '',
+                            question: question,
+                            responses: responses
+                        });
+                    }
+                });
+            }
         }
     });
 }
