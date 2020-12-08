@@ -697,7 +697,7 @@ module.exports.processDeleteSurvey = (req, res, next) => {
                 }
                 else
                 {
-                    res.redirect('/');
+                    res.redirect('/mysurveys');
                 }
             });
         }
