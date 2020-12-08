@@ -3,6 +3,17 @@ let router = express.Router();
 
 let indexController = require('../controllers/index');
 
+// authentication guard function
+function requireAuth(req, res, next)
+{
+    // check if user is logged in
+    if (!req.isAuthenticated())
+    {
+        return res.redirect('/login');
+    }
+    next();
+}
+
 /* GET  HOME page. */
 router.get('/', indexController.displayHomePage);
 
@@ -16,41 +27,41 @@ router.get('/about', indexController.displayAboutPage);
 router.get('/contact', indexController.displayContactPage);
 
 /* GET MY SURVEYS page. */
-router.get('/mysurveys', indexController.displayMySurveysPage);
+router.get('/mysurveys', requireAuth, indexController.displayMySurveysPage);
 
 // short answer survey creation
-router.get('/surveys/create', indexController.displaySurveyCreatePage);
+router.get('/surveys/create', requireAuth, indexController.displaySurveyCreatePage);
 
-router.get('/surveys/update/:id', indexController.displaySurveyUpdatePage);
+router.get('/surveys/update/:id', requireAuth, indexController.displaySurveyUpdatePage);
 
-router.post('/surveys/update/:id', indexController.processSurveyUpdate);
+router.post('/surveys/update/:id', requireAuth, indexController.processSurveyUpdate);
 
 // GET publish survey
-router.get('/surveys/publish/:id', indexController.processSurveyPublish);
+router.get('/surveys/publish/:id', requireAuth, indexController.processSurveyPublish);
 
 // GET survey question CREATE page
-router.get('/surveys/update/addquestion/:id', indexController.displayQuestionCreatePage);
+router.get('/surveys/update/addquestion/:id', requireAuth, indexController.displayQuestionCreatePage);
 
-router.post('/surveys/update/addquestion/:id', indexController.processQuestionCreatePage);
+router.post('/surveys/update/addquestion/:id', requireAuth, indexController.processQuestionCreatePage);
 
 // GET Create new multiple choice question
-router.get('/surveys/update/addmultiplechoice/:id', indexController.processCreateMultipleChoiceQuestion);
+router.get('/surveys/update/addmultiplechoice/:id', requireAuth, indexController.processCreateMultipleChoiceQuestion);
 
-router.get('/surveys/update/question/addoption/:questionID', indexController.processAddMultipleChoiceOption);
+router.get('/surveys/update/question/addoption/:questionID', requireAuth, indexController.processAddMultipleChoiceOption);
 
-router.get('/surveys/update/question/option/:optionID', indexController.displayMultipleChoiceOptionUpdate);
+router.get('/surveys/update/question/option/:optionID', requireAuth, indexController.displayMultipleChoiceOptionUpdate);
 
-router.post('/surveys/update/question/option/:optionID', indexController.processMultipleChoiceOptionUpdate);
+router.post('/surveys/update/question/option/:optionID', requireAuth, indexController.processMultipleChoiceOptionUpdate);
 
-router.get('/surveys/update/question/option/delete/:optionID', indexController.processDeleteMultipleChoiceOption);
+router.get('/surveys/update/question/option/delete/:optionID', requireAuth, indexController.processDeleteMultipleChoiceOption);
 
 // update survey question
-router.get('/surveys/update/question/:questionID', indexController.displayQuestionUpdatePage);
+router.get('/surveys/update/question/:questionID', requireAuth, indexController.displayQuestionUpdatePage);
 
-router.post('/surveys/update/question/:questionID', indexController.processQuestionUpdatePage);
+router.post('/surveys/update/question/:questionID', requireAuth, indexController.processQuestionUpdatePage);
 
 // GET delete survey question
-router.get('/surveys/update/question/delete/:questionID', indexController.processDeleteQuestion);
+router.get('/surveys/update/question/delete/:questionID', requireAuth, indexController.processDeleteQuestion);
 
 // short answer survey response
 router.get('/surveys/respond/:id', indexController.displaySurveyRespondPage);
@@ -58,13 +69,13 @@ router.get('/surveys/respond/:id', indexController.displaySurveyRespondPage);
 router.post('/surveys/respond/:id', indexController.processSurveyRespondPage);
 
 // view survey responses
-router.get('/surveys/:id', indexController.displaySurveyDataPage);
+router.get('/surveys/:id', requireAuth, indexController.displaySurveyDataPage);
 
 // view survey question responses
-router.get('/surveys/question/:id', indexController.displayQuestionDataPage);
+router.get('/surveys/question/:id', requireAuth, indexController.displayQuestionDataPage);
 
 // POST delete survey (and all its answers)
-router.get('/surveys/delete/:id', indexController.processDeleteSurvey);
+router.get('/surveys/delete/:id', requireAuth, indexController.processDeleteSurvey);
 
 /* GET Route for displaying the Login page */
 router.get('/login', indexController.displayLoginPage);
