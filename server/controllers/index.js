@@ -343,7 +343,52 @@ module.exports.displayMultipleChoiceOptionUpdate = (req, res, next) => {
         else
         {
             res.render('surveys/updateMCOption', {
-                title: 'Edit Option'
+                title: 'Edit Option',
+                displayName: req.user ? req.user.displayName : '',
+                option: mCOption
+            });
+        }
+    });
+}
+
+module.exports.processMultipleChoiceOptionUpdate = (req, res, next) => {
+    let optionID = req.params.optionID;
+
+    multipleChoice.findOneAndUpdate({_id: optionID}, {'option': req.body.question}, (err, mCOption) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            res.redirect('/surveys/update/question/' + mCOption.questionID);
+        }
+    })
+}
+
+module.exports.processDeleteMultipleChoiceOption = (req, res, next) => {
+    let optionID = req.params.optionID;
+
+    multipleChoice.findById(optionID, (err, mCOption) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            let questionID = mCOption.questionID;
+            multipleChoice.deleteOne({_id: optionID}, (err) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    res.redirect('/surveys/update/question/' + questionID);
+                }
             });
         }
     });
@@ -360,12 +405,33 @@ module.exports.displayQuestionUpdatePage = (req, res, next) => {
         }
         else
         {
-            res.render('surveys/updateQuestion', {
-                title: 'Update Question',
-                displayName: req.user ? req.user.displayName : '',
-                surveyQuestion: surveyQuestion,
-                options: ''
-            });
+            if (surveyQuestion.questionType == 'multipleChoice')
+            {
+                multipleChoice.find({questionID: surveyQuestion._id}, (err, mCOptions) => {
+                    if (err)
+                    {
+                        return console.log(err);
+                    }
+                    else
+                    {
+                        res.render('surveys/updateQuestion', {
+                            title: 'Update Question',
+                            displayName: req.user ? req.user.displayName : '',
+                            surveyQuestion: surveyQuestion,
+                            options: mCOptions
+                        });
+                    }
+                });
+            }
+            else
+            {
+                res.render('surveys/updateQuestion', {
+                    title: 'Update Question',
+                    displayName: req.user ? req.user.displayName : '',
+                    surveyQuestion: surveyQuestion,
+                    options: ''
+                });
+            }
         }
     });
 }
@@ -526,7 +592,14 @@ module.exports.processDeleteSurvey = (req, res, next) => {
                     }
                 });
 
-                // TODO: remove all multiple choice responses belonging to the quesiton
+                // remove all multiple choice responses belonging to the quesiton
+                multipleChoice.deleteMany({questionID: questions[i]._id}, (err) => {
+                    if (err)
+                    {
+                        console.log(err);
+                        res.end(err);
+                    }
+                });
             }
         }
     });
@@ -565,6 +638,7 @@ module.exports.processDeleteQuestion = (req, res, next) => {
         else
         {
             let surveyID = surveyQuestion.surveyID;
+            
             shortAnswers.deleteMany({questionID: surveyQuestion._id}, (err) => {
                 if (err)
                 {
@@ -572,81 +646,90 @@ module.exports.processDeleteQuestion = (req, res, next) => {
                 }
                 else
                 {
-                    // re-link the previous and next questions
-                    if (!surveyQuestion.prev && !surveyQuestion.next)
-                    {
-                        // if we get in here, we are deleting the only question in the survey
-                        surveys.updateOne({_id: surveyID}, { $unset: {head: "", tail: ""} }, (err) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                    }
-                    else if (!surveyQuestion.prev)
-                    {
-                        // here we are deleting the survey's head
-                        surveys.updateOne({_id: surveyID}, {'head': surveyQuestion.next}, (err) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                        surveyQuestions.updateOne({_id: surveyQuestion.next}, { $unset: {prev: ""}}, (err) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                    }
-                    else if (!surveyQuestion.next)
-                    {
-                        // here, we would be deleting the survey's tail
-                        surveys.updateOne({_id: surveyID}, {'tail': surveyQuestion.prev}, (err, survey) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                        surveyQuestions.updateOne({_id: surveyQuestion.prev}, { $unset: {next: ""}}, (err) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        // here, we're somewhere in the middle so we need to link the prev and next questions to eachother
-                        surveyQuestions.updateOne({_id: surveyQuestion.prev}, {'next': surveyQuestion.next}, (err, question) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                        surveyQuestions.updateOne({_id: surveyQuestion.next}, {'prev': surveyQuestion.prev}, (err, question) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                    }
-                    // now we can delete the question
-                    surveyQuestions.deleteOne({_id: surveyQuestion._id}, (err) => {
+                    multipleChoice.deleteMany({questionID: surveyQuestion._id}, (err) => {
                         if (err)
                         {
                             return console.log(err);
                         }
                         else
                         {
-                            res.redirect('/surveys/update/'+surveyID);
+                            // re-link the previous and next questions
+                            if (!surveyQuestion.prev && !surveyQuestion.next)
+                            {
+                                // if we get in here, we are deleting the only question in the survey
+                                surveys.updateOne({_id: surveyID}, { $unset: {head: "", tail: ""} }, (err) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                            }
+                            else if (!surveyQuestion.prev)
+                            {
+                                // here we are deleting the survey's head
+                                surveys.updateOne({_id: surveyID}, {'head': surveyQuestion.next}, (err) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                                surveyQuestions.updateOne({_id: surveyQuestion.next}, { $unset: {prev: ""}}, (err) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                            }
+                            else if (!surveyQuestion.next)
+                            {
+                                // here, we would be deleting the survey's tail
+                                surveys.updateOne({_id: surveyID}, {'tail': surveyQuestion.prev}, (err, survey) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                                surveyQuestions.updateOne({_id: surveyQuestion.prev}, { $unset: {next: ""}}, (err) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                // here, we're somewhere in the middle so we need to link the prev and next questions to eachother
+                                surveyQuestions.updateOne({_id: surveyQuestion.prev}, {'next': surveyQuestion.next}, (err, question) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                                surveyQuestions.updateOne({_id: surveyQuestion.next}, {'prev': surveyQuestion.prev}, (err, question) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                            }
+                            // now we can delete the question
+                            surveyQuestions.deleteOne({_id: surveyQuestion._id}, (err) => {
+                                if (err)
+                                {
+                                    return console.log(err);
+                                }
+                                else
+                                {
+                                    res.redirect('/surveys/update/'+surveyID);
+                                }
+                            });
                         }
                     });
                 }

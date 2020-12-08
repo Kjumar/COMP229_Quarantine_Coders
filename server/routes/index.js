@@ -38,7 +38,11 @@ router.get('/surveys/update/addmultiplechoice/:id', indexController.processCreat
 
 router.get('/surveys/update/question/addoption/:questionID', indexController.processAddMultipleChoiceOption);
 
-router.get('/surveys/update/question/option/:optionID');
+router.get('/surveys/update/question/option/:optionID', indexController.displayMultipleChoiceOptionUpdate);
+
+router.post('/surveys/update/question/option/:optionID', indexController.processMultipleChoiceOptionUpdate);
+
+router.get('/surveys/update/question/option/delete/:optionID', indexController.processDeleteMultipleChoiceOption);
 
 // update survey question
 router.get('/surveys/update/question/:questionID', indexController.displayQuestionUpdatePage);
