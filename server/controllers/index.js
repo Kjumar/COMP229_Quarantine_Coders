@@ -6,6 +6,7 @@ let passport = require('passport');
 let surveys = require('../models/survey');
 let surveyQuestions = require('../models/surveyQuestion');
 let shortAnswers = require('../models/shortAnswer');
+let multipleChoice = require('../models/multipleChoice');
 let userModel = require('../models/user');
 let User = userModel.User; //alias
 
@@ -237,6 +238,117 @@ module.exports.processQuestionCreatePage = (req, res, next) => {
     });
 }
 
+module.exports.processCreateMultipleChoiceQuestion = (req, res, next) => {
+    let id = req.params.id;
+
+    surveys.findById(id, (err, survey) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            let prev = undefined;
+            if (survey.tail != null)
+            {
+                prev = survey.tail;
+            }
+            let newSurveyQuestion = surveyQuestions({
+                surveyID: survey._id,
+                question: 'question',
+                questionType: 'multipleChoice',
+                prev: prev
+            });
+            surveyQuestions.create(newSurveyQuestion, (err, surveyQuestion) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    if (survey.tail != null)
+                    {
+                        surveyQuestions.updateOne({_id: survey.tail}, {'next': surveyQuestion._id}, (err, question) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                        surveys.updateOne({_id: survey._id}, {'tail': surveyQuestion._id}, (err, survey) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        surveys.updateOne({_id: survey._id}, {'tail': surveyQuestion._id, 'head': surveyQuestion._id}, (err, survey) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    res.redirect('/surveys/update/question/'+surveyQuestion._id);
+                }
+            });
+        }
+    });
+}
+
+module.exports.processAddMultipleChoiceOption = (req, res, next) => {
+    let questionID = req.params.questionID;
+
+    surveyQuestions.findById(questionID, (err, surveyQuestion) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            let newMultipleChoice = multipleChoice({
+                'questionID': questionID,
+                'option': 'option'
+            });
+
+            multipleChoice.create(newMultipleChoice, (err, newOption) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    res.redirect('/surveys/update/question/option/' + newOption._id);
+                }
+            });
+        }
+    });
+}
+
+module.exports.displayMultipleChoiceOptionUpdate = (req, res, next) => {
+    let optionID = req.params.optionID;
+
+    multipleChoice.findById(optionID, (err, mCOption) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            res.render('surveys/updateMCOption', {
+                title: 'Edit Option'
+            });
+        }
+    });
+}
+
 // GET survey question update page
 module.exports.displayQuestionUpdatePage = (req, res, next) => {
     let questionID = req.params.questionID;
@@ -251,7 +363,8 @@ module.exports.displayQuestionUpdatePage = (req, res, next) => {
             res.render('surveys/updateQuestion', {
                 title: 'Update Question',
                 displayName: req.user ? req.user.displayName : '',
-                surveyQuestion: surveyQuestion
+                surveyQuestion: surveyQuestion,
+                options: ''
             });
         }
     });

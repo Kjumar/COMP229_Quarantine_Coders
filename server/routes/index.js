@@ -33,6 +33,13 @@ router.get('/surveys/update/addquestion/:id', indexController.displayQuestionCre
 
 router.post('/surveys/update/addquestion/:id', indexController.processQuestionCreatePage);
 
+// GET Create new multiple choice question
+router.get('/surveys/update/addmultiplechoice/:id', indexController.processCreateMultipleChoiceQuestion);
+
+router.get('/surveys/update/question/addoption/:questionID', indexController.processAddMultipleChoiceOption);
+
+router.get('/surveys/update/question/option/:optionID');
+
 // update survey question
 router.get('/surveys/update/question/:questionID', indexController.displayQuestionUpdatePage);
 
