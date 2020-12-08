@@ -6,6 +6,7 @@ let passport = require('passport');
 let surveys = require('../models/survey');
 let surveyQuestions = require('../models/surveyQuestion');
 let shortAnswers = require('../models/shortAnswer');
+let multipleChoice = require('../models/multipleChoice');
 let userModel = require('../models/user');
 let User = userModel.User; //alias
 
@@ -237,6 +238,162 @@ module.exports.processQuestionCreatePage = (req, res, next) => {
     });
 }
 
+module.exports.processCreateMultipleChoiceQuestion = (req, res, next) => {
+    let id = req.params.id;
+
+    surveys.findById(id, (err, survey) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            let prev = undefined;
+            if (survey.tail != null)
+            {
+                prev = survey.tail;
+            }
+            let newSurveyQuestion = surveyQuestions({
+                surveyID: survey._id,
+                question: 'question',
+                questionType: 'multipleChoice',
+                prev: prev
+            });
+            surveyQuestions.create(newSurveyQuestion, (err, surveyQuestion) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    if (survey.tail != null)
+                    {
+                        surveyQuestions.updateOne({_id: survey.tail}, {'next': surveyQuestion._id}, (err, question) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                        surveys.updateOne({_id: survey._id}, {'tail': surveyQuestion._id}, (err, survey) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        surveys.updateOne({_id: survey._id}, {'tail': surveyQuestion._id, 'head': surveyQuestion._id}, (err, survey) => {
+                            if (err)
+                            {
+                                console.log(err);
+                                res.end(err);
+                            }
+                        });
+                    }
+                    res.redirect('/surveys/update/question/'+surveyQuestion._id);
+                }
+            });
+        }
+    });
+}
+
+module.exports.processAddMultipleChoiceOption = (req, res, next) => {
+    let questionID = req.params.questionID;
+
+    surveyQuestions.findById(questionID, (err, surveyQuestion) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            let newMultipleChoice = multipleChoice({
+                'questionID': questionID,
+                'option': 'option'
+            });
+
+            multipleChoice.create(newMultipleChoice, (err, newOption) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    res.redirect('/surveys/update/question/option/' + newOption._id);
+                }
+            });
+        }
+    });
+}
+
+module.exports.displayMultipleChoiceOptionUpdate = (req, res, next) => {
+    let optionID = req.params.optionID;
+
+    multipleChoice.findById(optionID, (err, mCOption) => {
+        if (err)
+        {
+            return console.log(err);
+        }
+        else
+        {
+            res.render('surveys/updateMCOption', {
+                title: 'Edit Option',
+                displayName: req.user ? req.user.displayName : '',
+                option: mCOption
+            });
+        }
+    });
+}
+
+module.exports.processMultipleChoiceOptionUpdate = (req, res, next) => {
+    let optionID = req.params.optionID;
+
+    multipleChoice.findOneAndUpdate({_id: optionID}, {'option': req.body.question}, (err, mCOption) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            res.redirect('/surveys/update/question/' + mCOption.questionID);
+        }
+    })
+}
+
+module.exports.processDeleteMultipleChoiceOption = (req, res, next) => {
+    let optionID = req.params.optionID;
+
+    multipleChoice.findById(optionID, (err, mCOption) => {
+        if (err)
+        {
+            console.log(err);
+            res.end(err);
+        }
+        else
+        {
+            let questionID = mCOption.questionID;
+            multipleChoice.deleteOne({_id: optionID}, (err) => {
+                if (err)
+                {
+                    console.log(err);
+                    res.end(err);
+                }
+                else
+                {
+                    res.redirect('/surveys/update/question/' + questionID);
+                }
+            });
+        }
+    });
+}
+
 // GET survey question update page
 module.exports.displayQuestionUpdatePage = (req, res, next) => {
     let questionID = req.params.questionID;
@@ -248,11 +405,33 @@ module.exports.displayQuestionUpdatePage = (req, res, next) => {
         }
         else
         {
-            res.render('surveys/updateQuestion', {
-                title: 'Update Question',
-                displayName: req.user ? req.user.displayName : '',
-                surveyQuestion: surveyQuestion
-            });
+            if (surveyQuestion.questionType == 'multipleChoice')
+            {
+                multipleChoice.find({questionID: surveyQuestion._id}, (err, mCOptions) => {
+                    if (err)
+                    {
+                        return console.log(err);
+                    }
+                    else
+                    {
+                        res.render('surveys/updateQuestion', {
+                            title: 'Update Question',
+                            displayName: req.user ? req.user.displayName : '',
+                            surveyQuestion: surveyQuestion,
+                            options: mCOptions
+                        });
+                    }
+                });
+            }
+            else
+            {
+                res.render('surveys/updateQuestion', {
+                    title: 'Update Question',
+                    displayName: req.user ? req.user.displayName : '',
+                    surveyQuestion: surveyQuestion,
+                    options: ''
+                });
+            }
         }
     });
 }
@@ -285,11 +464,33 @@ module.exports.displaySurveyRespondPage = (req, res, next) => {
         }
         else
         {
-            res.render('surveys/respond', {
+            if (question.questionType == 'multipleChoice')
+            {
+                // find all options for this question
+                multipleChoice.find({questionID: question._id}, (err, mCOptions) => {
+                    if (err)
+                    {
+                        return console.log(err);
+                    }
+                    else
+                    {
+                        res.render('surveys/respond', {
+                            title: 'Respond to Survey',
+                            displayName: req.user ? req.user.displayName : '',
+                            question: question,
+                            options: mCOptions
+                        });
+                    }
+                });
+            }
+            else
+            {
+                res.render('surveys/respond', {
                 title: 'Respond to Survey',
                 displayName: req.user ? req.user.displayName : '',
                 question: question
             });
+            }
         }
     });
 }
@@ -305,22 +506,17 @@ module.exports.processSurveyRespondPage = (req, res, next) => {
         }
         else
         {
-            let newResponse = shortAnswers({
-                'questionID': question._id,
-                'response': req.body.response
-            });
-
-            shortAnswers.create(newResponse, (err, shortAnswer) => {
-                if (err)
-                {
-                    console.log(err);
-                    res.end(err);
-                }
-                else
-                {
-                    if (question.next)
+            if (question.questionType == 'multipleChoice')
+            {
+                multipleChoice.findOne({option: req.body.response}, (err, mCOption) => {
+                    if (err)
                     {
-                        surveyQuestions.findById(question.next, (err, nextQuestion) => {
+                        console.log(err);
+                        res.end(err);
+                    }
+                    else
+                    {
+                        multipleChoice.findByIdAndUpdate(mCOption._id, {responses: mCOption.responses + 1}, (err, mCOption) => {
                             if (err)
                             {
                                 console.log(err);
@@ -328,16 +524,45 @@ module.exports.processSurveyRespondPage = (req, res, next) => {
                             }
                             else
                             {
-                                res.redirect('/surveys/respond/'+nextQuestion._id);
+                                if (question.next)
+                                {
+                                    res.redirect('/surveys/respond/'+question.next);
+                                }
+                                else
+                                {
+                                    res.redirect('/');
+                                }
                             }
                         });
                     }
+                });
+            }
+            else
+            {
+                let newResponse = shortAnswers({
+                    'questionID': question._id,
+                    'response': req.body.response
+                });
+
+                shortAnswers.create(newResponse, (err, shortAnswer) => {
+                    if (err)
+                    {
+                        console.log(err);
+                        res.end(err);
+                    }
                     else
                     {
-                        res.redirect('/');
+                        if (question.next)
+                        {
+                            res.redirect('/surveys/respond/'+question.next);
+                        }
+                        else
+                        {
+                            res.redirect('/');
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     });
 }
@@ -383,21 +608,42 @@ module.exports.displayQuestionDataPage = (req, res, next) => {
         }
         else
         {
-            shortAnswers.find({questionID: question._id}, (err, responses) => {
-                if (err)
-                {
-                    return console.log(err);
-                }
-                else
-                {
-                    res.render('surveys/viewResponses', {
-                        title: 'Responses',
-                        displayName: req.user ? req.user.displayName : '',
-                        question: question,
-                        responses: responses
-                    });
-                }
-            });
+            if (question.questionType == 'multipleChoice')
+            {
+                multipleChoice.find({questionID: question._id}, (err, responses) => {
+                    if (err)
+                    {
+                        return console.log(err);
+                    }
+                    else
+                    {
+                        res.render('surveys/viewResponses', {
+                            title: 'Responses',
+                            displayName: req.user ? req.user.displayName : '',
+                            question: question,
+                            responses: responses
+                        });
+                    }
+                });
+            }
+            else
+            {
+                shortAnswers.find({questionID: question._id}, (err, responses) => {
+                    if (err)
+                    {
+                        return console.log(err);
+                    }
+                    else
+                    {
+                        res.render('surveys/viewResponses', {
+                            title: 'Responses',
+                            displayName: req.user ? req.user.displayName : '',
+                            question: question,
+                            responses: responses
+                        });
+                    }
+                });
+            }
         }
     });
 }
@@ -423,7 +669,14 @@ module.exports.processDeleteSurvey = (req, res, next) => {
                     }
                 });
 
-                // TODO: remove all multiple choice responses belonging to the quesiton
+                // remove all multiple choice responses belonging to the quesiton
+                multipleChoice.deleteMany({questionID: questions[i]._id}, (err) => {
+                    if (err)
+                    {
+                        console.log(err);
+                        res.end(err);
+                    }
+                });
             }
         }
     });
@@ -444,7 +697,7 @@ module.exports.processDeleteSurvey = (req, res, next) => {
                 }
                 else
                 {
-                    res.redirect('/');
+                    res.redirect('/mysurveys');
                 }
             });
         }
@@ -462,6 +715,7 @@ module.exports.processDeleteQuestion = (req, res, next) => {
         else
         {
             let surveyID = surveyQuestion.surveyID;
+            
             shortAnswers.deleteMany({questionID: surveyQuestion._id}, (err) => {
                 if (err)
                 {
@@ -469,81 +723,90 @@ module.exports.processDeleteQuestion = (req, res, next) => {
                 }
                 else
                 {
-                    // re-link the previous and next questions
-                    if (!surveyQuestion.prev && !surveyQuestion.next)
-                    {
-                        // if we get in here, we are deleting the only question in the survey
-                        surveys.updateOne({_id: surveyID}, { $unset: {head: "", tail: ""} }, (err) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                    }
-                    else if (!surveyQuestion.prev)
-                    {
-                        // here we are deleting the survey's head
-                        surveys.updateOne({_id: surveyID}, {'head': surveyQuestion.next}, (err) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                        surveyQuestions.updateOne({_id: surveyQuestion.next}, { $unset: {prev: ""}}, (err) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                    }
-                    else if (!surveyQuestion.next)
-                    {
-                        // here, we would be deleting the survey's tail
-                        surveys.updateOne({_id: surveyID}, {'tail': surveyQuestion.prev}, (err, survey) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                        surveyQuestions.updateOne({_id: surveyQuestion.prev}, { $unset: {next: ""}}, (err) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        // here, we're somewhere in the middle so we need to link the prev and next questions to eachother
-                        surveyQuestions.updateOne({_id: surveyQuestion.prev}, {'next': surveyQuestion.next}, (err, question) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                        surveyQuestions.updateOne({_id: surveyQuestion.next}, {'prev': surveyQuestion.prev}, (err, question) => {
-                            if (err)
-                            {
-                                console.log(err);
-                                res.end(err);
-                            }
-                        });
-                    }
-                    // now we can delete the question
-                    surveyQuestions.deleteOne({_id: surveyQuestion._id}, (err) => {
+                    multipleChoice.deleteMany({questionID: surveyQuestion._id}, (err) => {
                         if (err)
                         {
                             return console.log(err);
                         }
                         else
                         {
-                            res.redirect('/surveys/update/'+surveyID);
+                            // re-link the previous and next questions
+                            if (!surveyQuestion.prev && !surveyQuestion.next)
+                            {
+                                // if we get in here, we are deleting the only question in the survey
+                                surveys.updateOne({_id: surveyID}, { $unset: {head: "", tail: ""} }, (err) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                            }
+                            else if (!surveyQuestion.prev)
+                            {
+                                // here we are deleting the survey's head
+                                surveys.updateOne({_id: surveyID}, {'head': surveyQuestion.next}, (err) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                                surveyQuestions.updateOne({_id: surveyQuestion.next}, { $unset: {prev: ""}}, (err) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                            }
+                            else if (!surveyQuestion.next)
+                            {
+                                // here, we would be deleting the survey's tail
+                                surveys.updateOne({_id: surveyID}, {'tail': surveyQuestion.prev}, (err, survey) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                                surveyQuestions.updateOne({_id: surveyQuestion.prev}, { $unset: {next: ""}}, (err) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                // here, we're somewhere in the middle so we need to link the prev and next questions to eachother
+                                surveyQuestions.updateOne({_id: surveyQuestion.prev}, {'next': surveyQuestion.next}, (err, question) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                                surveyQuestions.updateOne({_id: surveyQuestion.next}, {'prev': surveyQuestion.prev}, (err, question) => {
+                                    if (err)
+                                    {
+                                        console.log(err);
+                                        res.end(err);
+                                    }
+                                });
+                            }
+                            // now we can delete the question
+                            surveyQuestions.deleteOne({_id: surveyQuestion._id}, (err) => {
+                                if (err)
+                                {
+                                    return console.log(err);
+                                }
+                                else
+                                {
+                                    res.redirect('/surveys/update/'+surveyID);
+                                }
+                            });
                         }
                     });
                 }
